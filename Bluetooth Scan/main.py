@@ -1,12 +1,34 @@
 from network import Bluetooth
+import time
 import ubinascii
-bluetooth = Bluetooth()
 
-# scan until we can connect to any BLE device around
-bluetooth.start_scan(-1)
-adv = None
-while bluetooth.isscanning():
-    adv = bluetooth.get_adv()
-    if adv:
-        print(ubinascii.hexlify(adv.mac))
-        
+bt = Bluetooth()
+
+bt.stop_scan()
+bt.start_scan(-1)
+
+while bt.isscanning():
+  adv = bt.get_adv()
+  if adv:
+      try:
+          conn = bt.connect(adv.mac)
+          services = conn.services()
+          print("Mon adresse mac " + print(ubinascii.hexlify(adv.mac)))
+
+          for service in services:
+              time.sleep(0.050)
+              if type(service.uuid()) == bytes:
+                  print('Reading chars from service = {}'.format(service.uuid()))
+              else:
+                  print('Reading chars from service = %x' % service.uuid())
+              chars = service.characteristics()
+              for char in chars:
+                  if (char.properties() & Bluetooth.PROP_READ):
+                      print('char {} value = {}'.format(char.uuid(), char.read()))
+          conn.disconnect()
+          break
+      except:
+          print("Error while connecting or reading from the BLE device")
+          break
+  else:
+      time.sleep(0.050)
