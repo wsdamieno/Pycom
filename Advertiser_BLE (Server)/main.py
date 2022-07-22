@@ -24,16 +24,16 @@ def chr1_handler(chr, data):
             update = True
 
 bluetooth = Bluetooth()
-bluetooth.set_advertisement(name='Damien Lopy_Adv', manufacturer_data="Pycom", service_uuid=0xec00) # Initialise the Advertisement
+bluetooth.set_advertisement(name='Damien_Adv', manufacturer_data="Pycom", service_uuid=0xec00) # Initialise the Advertisement
 
 bluetooth.callback(trigger=Bluetooth.CLIENT_CONNECTED | Bluetooth.CLIENT_DISCONNECTED, handler=conn_cb)
 bluetooth.advertise(True)  # Allow the advertisment
 
 srv1 = bluetooth.service(uuid=0xec00, isprimary=True,nbr_chars=1) # Set the parameters of the service srv1
 
-chr1 = srv1.characteristic(uuid=0xec0e, value='read_from_here') #client reads from here
+chr1 = srv1.characteristic(uuid=0xec0e, value=b'4') #client reads from here
 
-chr1.callback(trigger=(Bluetooth.CHAR_READ_EVENT | Bluetooth.CHAR_SUBSCRIBE_EVENT), handler=chr1_handler)
+chr1.callback(trigger=(Bluetooth.CHAR_READ_EVENT | Bluetooth.CHAR_SUBSCRIBE_EVENT), handler=chr1_handler) #the function chr1_handler is called when the scanner read the characteristic   
 print('Start BLE service')
 def update_handler(update_alarm):
     global battery
